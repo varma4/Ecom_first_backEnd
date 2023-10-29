@@ -49,6 +49,13 @@ loginSchema.methods.checkpassword = async function(pwd, pwdDb){
     return await bcrypt.compare(pwd, pwdDb)
 }
 
-const LoginModel = mongoose.model('loginDetails', loginSchema)
+const LoginModel = mongoose.model('login', loginSchema)
 
 module.exports = LoginModel
+
+// mrvarma85
+// varmaPenmetsa
+
+
+
+// mongodb+srv://mrvarma85:varmaPenmetsa@pitstopcluster.onegial.mongodb.net/

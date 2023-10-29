@@ -8,6 +8,7 @@ app.use(cors())
 
 const productRouter = require('./router/productRouter')
 const signupRouter = require('./router/loginRouter')
+const cartRouter = require('./router/cartRouter')
 const mongoose = require('mongoose')
 const port = 4040
 
@@ -20,8 +21,11 @@ app.use((req, res, next) => {
     next();
 });
 mongoose.connect(process.env.URL, console.log('DB connected'))
+
+
 app.use('/',signupRouter)
 app.use('/', productRouter)
+app.use('/', cartRouter)
 
 
 

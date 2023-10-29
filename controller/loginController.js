@@ -1,83 +1,114 @@
-const LoginDetail = require(`../model/loginModel`)
-const jwt = require(`jsonwebtoken`)
-require('dotenv').config()
+const LoginDetail = require('../model/loginModel');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-
+// Function to create a JWT token
 const tokencreation = (id, user) => {
-    return jwt.sign({id, user}, process.env.SECURITY, {
-        expiresIn: 100000000
-    })
-}
+    return jwt.sign({ id, user }, process.env.SECURITY, {
+        expiresIn: 100000000,
+    });
+};
 
-const createUser = async(req, res) => {
-    const newUser = await LoginDetail.create(req.body)
-    // const token = tokencreation(newUser._id, newUser.name);
-    // console.log(token);
-    res.status(201).json({
-        status: 'success',
-        // token        
-    })
-}
+// Create a new user
+const createUser = async (req, res) => {
+    try {
+        const newUser = await LoginDetail.create(req.body);
+        res.status(201).json({
+            status: 'success',
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Error creating user',
+            error: error.message,
+        });
+    }
+};
 
-const loginUser = async(req, res) => {
+// User login
+const loginUser = async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    if(!email || !password){
-        return res.status(200).json({
-            status: 'failed',
-            message: "no mail id or password"
-        })
-    }
-
-    const user = await LoginDetail.findOne({email})
-    const pass = await user.checkpassword(password, user.password)
-    if(!user || !pass){
+    if (!email || !password) {
         return res.status(400).json({
-            status: "failed",
-        })
+            status: 'failed',
+            message: 'Email and password are required.',
+        });
     }
-    
-    const userId = user._id.toString()
-    const token = tokencreation(user._id, user.name)
-    
-    res.cookie('userData', JSON.stringify({ token: token, name: user.name, id: userId }, { httpOnly : true, secure: true}))
-    console.log(user._id);
-    res.status(200).json({
-        status: 'success',
-        userName: user.name,
-        token: token,
-        id: userId  
-    })
-}
 
+    try {
+        const user = await LoginDetail.findOne({ email });
+        if (!user) {
+            return res.status(404).json({
+                status: 'failed',
+                message: 'User not found',
+            });
+        }
 
+        const isPasswordValid = await user.checkpassword(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                status: 'failed',
+                message: 'Invalid password',
+            });
+        }
+
+        const userId = user._id.toString();
+        const token = tokencreation(user._id, user.name);
+
+        res.status(200).json({
+            status: 'success',
+            userName: user.name,
+            token: token,
+            id: userId,
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Login failed',
+            error: error.message,
+        });
+    }
+};
+
+// Middleware to protect routes with JWT token verification
 protectMiddleware = async (req, res, next) => {
     const testToken = req.headers.authorization;
-    // console.log(testToken);
-    let token;
-    if(testToken && testToken.startsWith("Bearer")){
-        token = await testToken.split(" ")[1]
-    }
-    if(!testToken){
+    console.log(testToken);
+
+    if (!testToken) {
         return res.status(401).json({
             status: 'failed',
-            message: 'Invalid Token 1'
-        })
+            message: 'No token provided',
+        });
     }
+
+    let token;
+    if (testToken.startsWith('Bearer ')) {
+        token = testToken.split(' ')[1];
+    }
+
+    if (!token) {
+        return res.status(401).json({
+            status: 'failed',
+            message: 'Invalid token format',
+        });
+    }
+
     jwt.verify(token, process.env.SECURITY, (err, decoded) => {
-        if(err){
+        if (err) {
             return res.status(401).json({
-                message: 'failed',
-                message: 'Invalid Token gfdgfe'
-            })
+                status: 'failed',
+                message: 'Invalid token',
+            });
         }
-        req.user = decoded
-        next()
-    })
-}
+        req.user = decoded;
+        next();
+    });
+};
 
 module.exports = {
     createUser,
     loginUser,
-    protectMiddleware
-}
+    protectMiddleware,
+};

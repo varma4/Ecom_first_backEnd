@@ -16,8 +16,7 @@ const cartSchema = mongoose.Schema({
         type: Array
     },
     actualId: {
-        type: String,
-        unique: true
+        type: String
     },
     currentUser: String
 })

@@ -6,23 +6,28 @@ const ObjectId = mongoose.Types.ObjectId;
 const storeInCart = async (req, res) => {
     try {
         console.log(req.body);
-        actualId = req.body.actualId;
+        // actualId = req.body.actualId;
         
 
-        const existingItem = await Cart.findOne({ actualId });
+        // const existingItem = await Cart.findOne({ actualId });
 
-        if (existingItem) {
-            return res.status(200).json({
-                status: 'success',
-                message: 'Item already exists in the cart'
-            });
-        } else {
-            const newItem = await Cart.create(req.body);
+        // if (existingItem) {
+        //     return res.status(200).json({
+        //         status: 'success',
+        //         message: 'Item already exists in the cart'
+        //     });
+        // } else {
+        //     const newItem = await Cart.create(req.body);
+        //     return res.status(200).json({
+        //         status: 'success',
+        //         message: 'Item stored in cart'
+        //     });
+        // }
+        const newItem = await Cart.create(req.body);
             return res.status(200).json({
                 status: 'success',
                 message: 'Item stored in cart'
             });
-        }
     } catch (error) {
         res.status(500).json({
             status: 'error',

@@ -57,8 +57,11 @@ const deleteUsersProduct = async (req, res) => {
     const userId = req.params.userId;
     const itemId = req.params.itemId;
     console.log(userId, itemId);
-    let item = await Product.findByIdAndDelete(itemId);
-    await Cart.findByIdAndDelete(item.actualId)
+    await Product.findByIdAndDelete(itemId);
+    let item = await Cart.find(userId)
+    if(item){
+      await Cart.findByIdAndDelete(itemId)
+    }
     res.status(200).json({
       status: 'success',
       message: 'Deleted the product',

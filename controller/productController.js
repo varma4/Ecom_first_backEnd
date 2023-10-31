@@ -1,4 +1,5 @@
 const Product = require('../model/productModel');
+const Cart = require('../model/cartModel')
 
 const getAll = async (req, res) => {
   try {
@@ -57,6 +58,7 @@ const deleteUsersProduct = async (req, res) => {
     const itemId = req.params.itemId;
     console.log(userId, itemId);
     await Product.findByIdAndDelete(itemId);
+    await Cart.findByIdAndDelete(itemId)
     res.status(200).json({
       status: 'success',
       message: 'Deleted the product',

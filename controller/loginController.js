@@ -1,3 +1,4 @@
+const nodemailer = require(`nodemailer`)
 const LoginDetail = require('../model/loginModel');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -9,10 +10,63 @@ const tokencreation = (id, user) => {
     });
 };
 
+// sending email when user signs in
+async function sendEmail(email, name, userId)
+{
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: 'buyandsellstuffonline8@gmail.com',
+            pass: 'tulsbjrwtvvhninj'
+        }
+    })
+    
+    // write the content
+
+    const mailOptions = {
+        from: 'buyandsellstuffonline8@gmail.com',
+        to: email,
+        subject: `welcome + ${name} `,
+        html: `<p>Click on the link to verify your email address <a href="https://sellshit.netlify.app/verify?userId=${userId}">approve</a></p>`,
+
+    }
+    
+    try{
+        const res = transporter.sendMail(mailOptions)
+        console.log('mail sent');
+    }catch(err){
+        console.log(err)
+    }
+}
+
+//completed sending email
+
+// when user clicks on verify link
+
+const verifyEmail = async (req, res) =>{
+    const userId = req.params.userId;
+    const user = await LoginDetail.findById(userId)
+
+    if(!user) return res.status(404).json({status: 'failed'})
+    user.isVerified = true
+    await user.save();
+
+    res.status(200).json({
+        status: 'success',
+        message: 'verified email'
+    })
+} 
+
+
+
+
+
 // Create a new user
 const createUser = async (req, res) => {
     try {
         const newUser = await LoginDetail.create(req.body);
+        const verificationToken = ge
+        sendEmail(newUser.email, newUser.name, newUser._id)
         res.status(201).json({
             status: 'success',
         });
@@ -111,4 +165,5 @@ module.exports = {
     createUser,
     loginUser,
     protectMiddleware,
+    verifyEmail
 };

@@ -24,6 +24,10 @@ const loginSchema = mongoose.Schema({
         type: String,
         default: 'user'
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     confirmpassword:{
         type: String,
         required: [true, 'User should have a confirm password'],

@@ -67,7 +67,6 @@ const verifyEmail = async (req, res) =>{
 const createUser = async (req, res) => {
     try {
         const newUser = await LoginDetail.create(req.body);
-        const verificationToken = ge
         sendEmail(newUser.email, newUser.name, newUser._id)
         res.status(201).json({
             status: 'success',

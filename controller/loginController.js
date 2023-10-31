@@ -14,7 +14,9 @@ const tokencreation = (id, user) => {
 async function sendEmail(email, name, userId)
 {
     const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: 'smtp.gmail.com',
+        port: 587, // Use 465 for SSL
+        secure: false, // true for 465, false for other ports
         auth: {
             user: 'buyandsellstuffonline8@gmail.com',
             pass: 'tulsbjrwtvvhninj'

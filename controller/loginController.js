@@ -47,7 +47,7 @@ async function sendEmail(email, name, userId)
 // when user clicks on verify link
 
 const verifyEmail = async (req, res) =>{
-    const userId = req.params.userId;
+    const userId = await req.params.userId;
     // const user = await LoginDetail.findById(userId)
 
     if(!user) return res.status(404).json({status: 'failed'})

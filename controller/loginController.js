@@ -29,7 +29,7 @@ async function sendEmail(email, name, userId)
         from: 'buyandsellstuffonline8@gmail.com',
         to: email,
         subject: `welcome ${name} `,
-        html: `<p>Click on the link to verify your email address <a href="https://sellstuffonline.netlify.app/verify?userId=${userId}">approve</a></p>`,
+        html: `<p>Click on the link to verify your email address <a href="https://sellstuffonline.netlify.app/verify/${userId}">approve</a></p>`,
         // html :`<p>Click on the link to verify your email address <a [routerLink]="['/verify', userId]">approve</a></p>`
 
     }

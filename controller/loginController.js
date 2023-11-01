@@ -50,12 +50,12 @@ const verifyEmail = async (req, res) =>{
     const userId = await req.params.userId;
     // const user = await LoginDetail.findById(userId)
 
-    if(!user) return res.status(404).json({status: 'failed'})
+    if(!userId) return res.status(404).json({status: 'failed'})
     // user.updateOne({_id: userId}, { $set:{isVerified : true} })
     // await user.save();
     await LoginDetail.updateOne({ _id: userId }, { $set: { isVerified: true } });
 
-    res.send('successfully verified your email')
+    res.status(200).send('successfully verified your email')
     // res.status(200).json({
     //     status: 'success',
     //     message: 'verified email'

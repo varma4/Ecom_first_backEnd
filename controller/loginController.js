@@ -29,7 +29,7 @@ async function sendEmail(email, name, userId)
         from: 'buyandsellstuffonline8@gmail.com',
         to: email,
         subject: `welcome ${name} `,
-        html: `<p>Click on the link to verify your email address <a href="https://sellstuffonline.netlify.app/verify/${userId}">approve</a></p>`,
+        html: `<h2>Click on the link to verify your email address <a href="https://pitstop-80pm.onrender.com/verify/${userId}">approve</a></h2>`,
         // html :`<p>Click on the link to verify your email address <a [routerLink]="['/verify', userId]">approve</a></p>`
 
     }
@@ -55,7 +55,7 @@ const verifyEmail = async (req, res) =>{
     // await user.save();
     await LoginDetail.updateOne({ _id: userId }, { $set: { isVerified: true } });
 
-    res.status(200).send('successfully verified your email')
+    res.status(200).send(`<h1>Email has been verified successfully</h1>`)
     // res.status(200).json({
     //     status: 'success',
     //     message: 'verified email'

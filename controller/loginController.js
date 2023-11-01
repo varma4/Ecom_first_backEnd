@@ -28,8 +28,9 @@ async function sendEmail(email, name, userId)
     const mailOptions = {
         from: 'buyandsellstuffonline8@gmail.com',
         to: email,
-        subject: `welcome + ${name} `,
-        html: `<p>Click on the link to verify your email address <a href="https://sellshit.netlify.app/verify?userId=${userId}">approve</a></p>`,
+        subject: `welcome ${name} `,
+        // html: `<p>Click on the link to verify your email address <a href="https://sellshit.netlify.app/verify?userId=${userId}">approve</a></p>`,
+        html :`<p>Click on the link to verify your email address <a [routerLink]="['/verify', userId]">approve</a></p>`
 
     }
     
@@ -47,11 +48,13 @@ async function sendEmail(email, name, userId)
 
 const verifyEmail = async (req, res) =>{
     const userId = req.query.userId;
-    const user = await LoginDetail.findById(userId)
+    // const user = await LoginDetail.findById(userId)
 
     if(!user) return res.status(404).json({status: 'failed'})
-    user.updateOne({_id: userId}, { $set:{isVerified : true} })
-    await user.save();
+    // user.updateOne({_id: userId}, { $set:{isVerified : true} })
+    // await user.save();
+    await LoginDetail.updateOne({ _id: userId }, { $set: { isVerified: true } });
+
 
     res.status(200).json({
         status: 'success',

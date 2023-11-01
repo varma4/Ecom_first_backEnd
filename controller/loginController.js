@@ -55,11 +55,11 @@ const verifyEmail = async (req, res) =>{
     // await user.save();
     await LoginDetail.updateOne({ _id: userId }, { $set: { isVerified: true } });
 
-
-    res.status(200).json({
-        status: 'success',
-        message: 'verified email'
-    })
+    res.send('successfully verified your email')
+    // res.status(200).json({
+    //     status: 'success',
+    //     message: 'verified email'
+    // })
 } 
 
 

@@ -1,5 +1,8 @@
 const Product = require("../model/productModel");
 const Cart = require("../model/cartModel");
+const cacheController = require("express-cache-controller"); // Import caching middleware
+
+const cacheDuration = 60 * 10;
 
 const getAll = async (req, res) => {
   try {
@@ -15,6 +18,33 @@ const getAll = async (req, res) => {
     });
   }
 };
+
+// middleware for cache
+const cacheGetAllProducts = (req, res, next) => {
+  const cacheVal = `getAll:${req.url}`;
+
+  const cacheData = req.cache.get(cacheVal);
+
+  if (cacheData) {
+    res.json(JSON.parse(cacheData));
+  } else {
+    // Invoke the getAll function and handle the response
+    getAll(req, res)
+      .then((data) => {
+        req.cache.put(cacheVal, JSON.stringify(data), cacheDuration);
+        res.json(data);
+      })
+      .catch((error) => {
+        // Handle errors if necessary
+        res.status(500).json({
+          status: "error",
+          message: "An error occurred while fetching products",
+        });
+      });
+  }
+};
+
+
 
 const getUsersCreatedProducts = async (req, res) => {
   try {
@@ -100,4 +130,5 @@ module.exports = {
   getUsersCreatedProducts,
   deleteUsersProduct,
   addToCart,
+  cacheGetAllProducts
 };

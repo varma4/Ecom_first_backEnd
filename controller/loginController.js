@@ -15,8 +15,8 @@ async function sendEmail(email, name, userId)
 {
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
-        port: 587, // Use 465 for SSL
-        secure: false, // true for 465, false for other ports
+        port: 587, 
+        secure: false, 
         auth: {
             user: 'buyandsellstuffonline8@gmail.com',
             pass: 'tulsbjrwtvvhninj'

@@ -20,29 +20,29 @@ const getAll = async (req, res) => {
 };
 
 // middleware for cache
-const cacheGetAllProducts = (req, res, next) => {
-  const cacheVal = `getAll:${req.url}`;
+// const cacheGetAllProducts = (req, res, next) => {
+//   const cacheVal = `getAll:${req.url}`;
 
-  const cacheData = req.cache.get(cacheVal);
+//   const cacheData = req.cache.get(cacheVal);
 
-  if (cacheData) {
-    res.json(JSON.parse(cacheData));
-  } else {
-    // Invoke the getAll function and handle the response
-    getAll(req, res)
-      .then((data) => {
-        req.cache.put(cacheVal, JSON.stringify(data), cacheDuration);
-        res.json(data);
-      })
-      .catch((error) => {
-        // Handle errors if necessary
-        res.status(500).json({
-          status: "error",
-          message: "An error occurred while fetching products",
-        });
-      });
-  }
-};
+//   if (cacheData) {
+//     res.json(JSON.parse(cacheData));
+//   } else {
+//     // Invoke the getAll function and handle the response
+//     getAll(req, res)
+//       .then((data) => {
+//         req.cache.put(cacheVal, JSON.stringify(data), cacheDuration);
+//         res.json(data);
+//       })
+//       .catch((error) => {
+//         // Handle errors if necessary
+//         res.status(500).json({
+//           status: "error",
+//           message: "An error occurred while fetching products",
+//         });
+//       });
+//   }
+// };
 
 
 

@@ -130,5 +130,5 @@ module.exports = {
   getUsersCreatedProducts,
   deleteUsersProduct,
   addToCart,
-  cacheGetAllProducts
+  // cacheGetAllProducts
 };

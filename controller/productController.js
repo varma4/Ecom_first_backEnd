@@ -26,9 +26,9 @@ client.on('error', (err) => {
   console.log(err.message)
 })
 
-client.on('end', () => {
-  console.log('redis dis-connected');
-})
+// client.on('end', () => {
+//   console.log('redis dis-connected');
+// })
 
 // redis-16829.c252.ap-southeast-1-1.ec2.cloud.redislabs.com:16829
 const Product = require("../model/productModel");

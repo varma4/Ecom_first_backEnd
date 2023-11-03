@@ -16,6 +16,7 @@ const client = createClient({
     }
 });
 
+
 client.on('connect', () => {
   console.log('redis connected');
 })

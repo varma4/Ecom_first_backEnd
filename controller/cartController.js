@@ -26,35 +26,39 @@ const storeInCart = async (req, res) => {
 
 
 // Retrieve items from the cart
-const retriveCart = async (req, res) => {
-  const cacheKey = `cartItems:${currentUser}`
+const retrieveCart = async (req, res) => {
   const currentUser = req.params.currentUser;
-  try {
-    const cacheData = await redisClient.get(cacheKey)
+  const cacheKey = `cartItems:${currentUser}`;
 
-    if(cacheData){
-      const cartItems = JSON.parse(cacheData)
-      res.status(200).json({
-        status: "success",
-        cartItems,
-        message: "Items retrieved From cache",
-      });
-    }else{
-      const cartItems = await Cart.find({ currentUser })
-      await redisClient.set(cacheKey, JSON.stringify(cartItems))
+  try {
+    const cacheData = await redisClient.get(cacheKey);
+
+    if (cacheData) {
+      const cartItems = JSON.parse(cacheData);
       res.status(200).json({
         status: 'success',
-        data: products,
+        cartItems,
+        message: 'Items retrieved from cache',
+      });
+    } else {
+      const cartItems = await Cart.find({ currentUser });
+      await redisClient.set(cacheKey, JSON.stringify(cartItems));
+
+      res.status(200).json({
+        status: 'success',
+        cartItems, // Use cartItems instead of products
         message: 'Data fetched from the database and cached',
       });
     }
   } catch (error) {
     res.status(500).json({
       status: 'error',
-      message: 'An error occurred while fetching products',
+      message: 'An error occurred while fetching cart items',
     });
   }
 };
+
+
 
 
 // const currentUser = req.params.currentUser;

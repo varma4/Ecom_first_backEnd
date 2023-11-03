@@ -6,9 +6,10 @@
 
 const { promisify } = require('util');
 
-import { createClient } from 'redis';
+// import { createClient } from 'redis';
+const redis = require('redis')
 
-const client = createClient({
+const client = redis.createClient({
     password: '54O2hazEfJbtEVfb6am1V10IHe277kRl',
     socket: {
         host: 'redis-16829.c252.ap-southeast-1-1.ec2.cloud.redislabs.com',

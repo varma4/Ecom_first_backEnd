@@ -40,7 +40,7 @@ const getAll = async (req, res) => {
       // Data is not cached, fetch from the database
       const products = await Product.find();
       
-      // Store the result in Redis with an expiration time (e.g., 1 hour)
+      // Store the result in Redis with expirytime
       await redis.set(cacheKey, JSON.stringify(products), 'EX', 3600);
 
       res.status(200).json({

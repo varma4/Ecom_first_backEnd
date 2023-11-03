@@ -4,22 +4,48 @@ const redisClient = require('../redis/redis')
 
 
 // Add an item to the cart
+// const storeInCart = async (req, res) => {
+//     try {
+//         console.log(req.body);
+//         const newItem = await Cart.create(req.body);
+//             return res.status(200).json({
+//                 status: 'success',
+//                 message: 'Item stored in cart'
+//             });
+//     } catch (error) {
+//         res.status(500).json({
+//             status: 'error',
+//             message: 'Failed to store item in cart',
+//             error: error.message,
+//         });
+//     }
+// }
+
+
 const storeInCart = async (req, res) => {
-    try {
-        console.log(req.body);
-        const newItem = await Cart.create(req.body);
-            return res.status(200).json({
-                status: 'success',
-                message: 'Item stored in cart'
-            });
-    } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Failed to store item in cart',
-            error: error.message,
-        });
-    }
-}
+  try {
+    console.log(req.body);
+    const newItem = await Cart.create(req.body);
+
+ 
+    const currentUser = req.body.currentUser; 
+    const cacheKey = `cartItems:${currentUser}`;
+    const cartItems = await Cart.find({ currentUser });
+
+    await redisClient.set(cacheKey, JSON.stringify(cartItems));
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Item stored in cart, and cache updated',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to store item in cart',
+      error: error.message,
+    });
+  }
+};
 
 
 

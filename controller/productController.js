@@ -1,23 +1,62 @@
+const Redis = require('ioredis');
+const redis = new Redis({
+  host: 'https://pitstop-80pm.onrender.com',
+  port: 6379,
+});
+
 const Product = require("../model/productModel");
 const Cart = require("../model/cartModel");
-const cacheController = require("express-cache-controller"); // Import caching middleware
 
-const cacheDuration = 60 * 10;
+
+
 
 const getAll = async (req, res) => {
+  const cacheKey = 'allProducts'
+  // try {
+  //   const products = await Product.find();
+  //   res.status(200).json({
+  //     status: "success",
+  //     data: products,
+  //   });
+  // } catch (error) {
+  //   res.status(500).json({
+  //     status: "error",
+  //     message: "An error occurred while fetching products",
+  //   });
+  // }
   try {
-    const products = await Product.find();
-    res.status(200).json({
-      status: "success",
-      data: products,
-    });
+    // Check if data is cached
+    const cachedData = await redis.get(cacheKey);
+
+    if (cachedData) {
+      // Data is cached, return the cached result
+      const products = JSON.parse(cachedData);
+      res.status(200).json({
+        status: 'success',
+        message: 'Data retrieved from cache',
+        data: products,
+      });
+    } else {
+      // Data is not cached, fetch from the database
+      const products = await Product.find();
+      
+      // Store the result in Redis with an expiration time (e.g., 1 hour)
+      await redis.set(cacheKey, JSON.stringify(products), 'EX', 3600);
+
+      res.status(200).json({
+        status: 'success',
+        data: products,
+      });
+    }
   } catch (error) {
     res.status(500).json({
-      status: "error",
-      message: "An error occurred while fetching products",
+      status: 'error',
+      message: 'An error occurred while fetching products',
     });
   }
-};
+}
+
+redis.quit();
 
 // middleware for cache
 // const cacheGetAllProducts = (req, res, next) => {

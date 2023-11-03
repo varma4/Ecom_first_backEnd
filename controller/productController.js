@@ -1,88 +1,96 @@
-const Redis = require('ioredis');
-const redis = new Redis({
-  host: 'https://pitstop-80pm.onrender.com',
-  port: 6379,
-});
+// const Redis = require('ioredis');
+// const redis = new Redis({
+//   host: 'redis-16829.c252.ap-southeast-1-1.ec2.cloud.redislabs.com',
+//   port: 16829,
+// });
 
+const { promisify } = require('util');
+
+const redis = require('redis')
+const client = redis.createClient({
+  port: 16829,
+  host: 'redis-16829.c252.ap-southeast-1-1.ec2.cloud.redislabs.com',
+  password: '54O2hazEfJbtEVfb6am1V10IHe277kRl'
+})
+
+client.on('connect', () => {
+  console.log('redis connected');
+})
+
+client.on('error', (err) => {
+  console.log(err.message)
+})
+
+client.on('end', () => {
+  console.log('redis dis-connected');
+})
+
+// redis-16829.c252.ap-southeast-1-1.ec2.cloud.redislabs.com:16829
 const Product = require("../model/productModel");
 const Cart = require("../model/cartModel");
 
 
 
 
-const getAll = async (req, res) => {
-  const cacheKey = 'allProducts'
-  try {
-    const products = await Product.find();
-    res.status(200).json({
-      status: "success",
-      data: products,
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "error",
-      message: "An error occurred while fetching products",
-    });
-  }
-}
+// const getAll = async (req, res) => {
+//   const cacheKey = 'allProducts'
 //   try {
-//     // Check if data is cached
-//     const cachedData = await redis.get(cacheKey);
-
-//     if (cachedData) {
-//       // Data is cached, return the cached result
-//       const products = JSON.parse(cachedData);
-//       res.status(200).json({
-//         status: 'success',
-//         message: 'Data retrieved from cache',
-//         data: products,
-//       });
-//     } else {
-//       // Data is not cached, fetch from the database
-//       const products = await Product.find();
-      
-//       // Store the result in Redis with expirytime
-//       await redis.set(cacheKey, JSON.stringify(products), 'EX', 3600);
-
-//       res.status(200).json({
-//         status: 'success',
-//         data: products,
-//       });
-//     }
+//     const products = await Product.find();
+//     res.status(200).json({
+//       status: "success",
+//       data: products,
+//     });
 //   } catch (error) {
 //     res.status(500).json({
-//       status: 'error',
-//       message: 'An error occurred while fetching products',
+//       status: "error",
+//       message: "An error occurred while fetching products",
 //     });
 //   }
 // }
 
+
+
+  
+
+const getAll = async (req, res) => {
+  const cacheKey = 'allProducts';
+  const getAsync = promisify(client.get).bind(client); // Promisify the Redis get method
+  const setAsync = promisify(client.set).bind(client); // Promisify the Redis set method
+
+  try {
+    const cachedData = await getAsync(cacheKey);
+
+    if (cachedData) {
+      const products = JSON.parse(cachedData);
+      res.status(200).json({
+        status: 'success',
+        data: products,
+        message: 'Products received from cache',
+      });
+    } else {
+      // Data not found in cache, fetch it from the database
+      const products = await Product.find();
+
+      // Cache the fetched data for future use using the SET method
+      await setAsync(cacheKey, JSON.stringify(products));
+
+      res.status(200).json({
+        status: 'success',
+        data: products,
+        message: 'Data fetched from the database and cached',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'An error occurred while fetching products',
+    });
+  }
+};
+
+
 // redis.quit();
 
-// middleware for cache
-// const cacheGetAllProducts = (req, res, next) => {
-//   const cacheVal = `getAll:${req.url}`;
-
-//   const cacheData = req.cache.get(cacheVal);
-
-//   if (cacheData) {
-//     res.json(JSON.parse(cacheData));
-//   } else {
-//     // Invoke the getAll function and handle the response
-//     getAll(req, res)
-//       .then((data) => {
-//         req.cache.put(cacheVal, JSON.stringify(data), cacheDuration);
-//         res.json(data);
-//       })
-//       .catch((error) => {
-//         // Handle errors if necessary
-//         res.status(500).json({
-//           status: "error",
-//           message: "An error occurred while fetching products",
-//         });
-//       });
-//   }
-// };
 
 
 

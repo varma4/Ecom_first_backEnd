@@ -41,11 +41,11 @@ const getAll = async (req, res) => {
         message: 'Products received from cache',
       });
     } else {
-      // Data not found in cache, fetch it from the database
+
       const products = await Product.find();
 
-      // Cache the fetched data for future use using the SET method
-      await redisClient.set(cacheKey, JSON.stringify(products)); // Use await to wait for the result
+
+      await redisClient.set(cacheKey, JSON.stringify(products)); 
 
       res.status(200).json({
         status: 'success',

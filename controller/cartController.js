@@ -1,28 +1,12 @@
 const { default: mongoose } = require("mongoose");
 const Cart = require(`../model/cartModel`);
-const ObjectId = mongoose.Types.ObjectId;
+const redisClient = require('../redis/redis')
+
 
 // Add an item to the cart
 const storeInCart = async (req, res) => {
     try {
         console.log(req.body);
-        // actualId = req.body.actualId;
-        
-
-        // const existingItem = await Cart.findOne({ actualId });
-
-        // if (existingItem) {
-        //     return res.status(200).json({
-        //         status: 'success',
-        //         message: 'Item already exists in the cart'
-        //     });
-        // } else {
-        //     const newItem = await Cart.create(req.body);
-        //     return res.status(200).json({
-        //         status: 'success',
-        //         message: 'Item stored in cart'
-        //     });
-        // }
         const newItem = await Cart.create(req.body);
             return res.status(200).json({
                 status: 'success',
@@ -43,25 +27,53 @@ const storeInCart = async (req, res) => {
 
 // Retrieve items from the cart
 const retriveCart = async (req, res) => {
+  const cacheKey = `cartItems:${currentUser}`
+  const currentUser = req.params.currentUser;
   try {
-    const currentUser = req.params.currentUser;
-    console.log(currentUser);
-    const cartItems = await Cart.find({ currentUser });
-    console.log(cartItems)
-    res.status(200).json({
-      status: "success",
-      cartItems,
-      message: "Items retrieved",
-    });
+    const cacheData = await redisClient.get(cacheKey)
+
+    if(cacheData){
+      const cartItems = JSON.parse(cacheData)
+      res.status(200).json({
+        status: "success",
+        cartItems,
+        message: "Items retrieved From cache",
+      });
+    }else{
+      const cartItems = await Cart.find({ currentUser })
+      await redisClient.set(cacheKey, JSON.stringify(cartItems))
+      res.status(200).json({
+        status: 'success',
+        data: products,
+        message: 'Data fetched from the database and cached',
+      });
+    }
   } catch (error) {
     res.status(500).json({
-      status: "error",
-      message: "Failed to retrieve items from the cart",
-      error: error.message,
+      status: 'error',
+      message: 'An error occurred while fetching products',
     });
   }
 };
 
+
+
+// const currentUser = req.params.currentUser;
+//     console.log(currentUser);
+//     const cartItems = await Cart.find({ currentUser });
+//     console.log(cartItems)
+//     res.status(200).json({
+//       status: "success",
+//       cartItems,
+//       message: "Items retrieved",
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       status: "error",
+//       message: "Failed to retrieve items from the cart",
+//       error: error.message,
+//     });
+//   }
 
 // Delete an item from the cart
 const deleteItem = async (req, res) => {

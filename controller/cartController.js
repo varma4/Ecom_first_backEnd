@@ -46,7 +46,7 @@ const retrieveCart = async (req, res) => {
 
       res.status(200).json({
         status: 'success',
-        cartItems, // Use cartItems instead of products
+        cartItems, 
         message: 'Data fetched from the database and cached',
       });
     }
@@ -100,6 +100,6 @@ const deleteItem = async (req, res) => {
 
 module.exports = {
   storeInCart,
-  retriveCart,
+  retrieveCart,
   deleteItem,
 };

@@ -105,23 +105,49 @@ const retrieveCart = async (req, res) => {
 //   }
 
 // Delete an item from the cart
-const deleteItem = async (req, res) => {
-    try {
-      const id = req.params.item;
-      await Cart.deleteOne({ _id: id });
+// const deleteItem = async (req, res) => {
+//     try {
+//       const id = req.params.item;
+//       await Cart.deleteOne({ _id: id });
   
-      res.status(200).json({
-        status: "success",
-        message: "Item deleted",
-      });
-    } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: "Failed to delete item from the cart",
-        error: error.message,
-      });
-    }
-  };
+//       res.status(200).json({
+//         status: "success",
+//         message: "Item deleted",
+//       });
+//     } catch (error) {
+//       res.status(500).json({
+//         status: "error",
+//         message: "Failed to delete item from the cart",
+//         error: error.message,
+//       });
+//     }
+//   };
+
+
+const deleteItem = async (req, res) => {
+  try {
+    const id = req.params.item;
+    await Cart.deleteOne({ _id: id });
+
+    const currentUser = req.params.currentUser; 
+    const cacheKey = `cartItems:${currentUser}`;
+    const cartItems = await Cart.find({ currentUser });
+
+    await redisClient.set(cacheKey, JSON.stringify(cartItems));
+
+    res.status(200).json({
+      status: "success",
+      message: "Item deleted, and cache updated",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Failed to delete item from the cart",
+      error: error.message,
+    });
+  }
+};
+
   
 
 module.exports = {

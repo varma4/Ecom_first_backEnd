@@ -57,7 +57,6 @@ const retriveCart = async (req, res) => {
 };
 
 
-
 // const currentUser = req.params.currentUser;
 //     console.log(currentUser);
 //     const cartItems = await Cart.find({ currentUser });

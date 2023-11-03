@@ -9,26 +9,19 @@ const { promisify } = require('util');
 // import { createClient } from 'redis';
 const redis = require('redis')
 
-const client = redis.createClient({
+let redisClient 
+(async () => {
+  redisClient = redis.createClient({
     password: '54O2hazEfJbtEVfb6am1V10IHe277kRl',
     socket: {
         host: 'redis-16829.c252.ap-southeast-1-1.ec2.cloud.redislabs.com',
         port: 16829
     }
 });
+redisClient.on("error", (error) => console.log(error))
+await redisClient.connect()
+})()
 
-
-client.on('connect', () => {
-  console.log('redis connected');
-})
-
-client.on('error', (err) => {
-  console.log(err.message)
-})
-
-// client.on('end', () => {
-//   console.log('redis dis-connected');
-// })
 
 // redis-16829.c252.ap-southeast-1-1.ec2.cloud.redislabs.com:16829
 const Product = require("../model/productModel");
@@ -59,11 +52,9 @@ const Cart = require("../model/cartModel");
 
 const getAll = async (req, res) => {
   const cacheKey = 'allProducts';
-  const getAsync = promisify(client.get).bind(client); // Promisify the Redis get method
-  const setAsync = promisify(client.set).bind(client); // Promisify the Redis set method
 
   try {
-    const cachedData = await getAsync(cacheKey);
+    const cachedData = await redisClient.get(cacheKey); // Use await to wait for the result
 
     if (cachedData) {
       const products = JSON.parse(cachedData);
@@ -77,7 +68,7 @@ const getAll = async (req, res) => {
       const products = await Product.find();
 
       // Cache the fetched data for future use using the SET method
-      await setAsync(cacheKey, JSON.stringify(products));
+      await redisClient.set(cacheKey, JSON.stringify(products)); // Use await to wait for the result
 
       res.status(200).json({
         status: 'success',

@@ -90,9 +90,11 @@ const getUsersCreatedProducts = async (req, res) => {
 
 
 const createProduct = async (req, res) => {
+  const cacheKey = 'allProducts'
+  await redisClient.del(cacheKey)
   try {
     const newProduct = await Product.create(req.body);
-    const cacheKey = 'allProducts'
+    
     // const cachedData = await redisClient.get(cacheKey);
     // let products = []
 
@@ -102,9 +104,7 @@ const createProduct = async (req, res) => {
     // }
 
     // products = [newProduct, ...products]
-    await redisClient.del(cacheKey)
-
-    await redisClient.set(cacheKey, JSON.stringify(products))
+  
 
 
     console.log(newProduct);

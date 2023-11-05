@@ -69,17 +69,29 @@ const getAll = async (req, res) => {
 
 const getUsersCreatedProducts = async (req, res) => {
   try {
+
     const userId = req.params.userId;
-    console.log(userId);
+    const cacheKey = `myproducts/${userId}`
+    const cacheData = await redisClient.get(cacheKey)
 
-    const myproducts = await Product.find({ userId });
+    if(cacheData){
+      const myproducts = JSON.parse(cacheData)
+      res.status(200).json({
+        status: 'success',
+        myproducts,
+        message: 'Items retrived from cache'
+      })
+    }else{
+      const myproducts = await Product.find({ userId })
 
-    console.log("-------------------", myproducts);
-    res.status(200).json({
-      status: "success",
-      myproducts,
-      message: "Your items retrieved",
-    });
+      await redisClient.set(cacheKey, JSON.stringify(myproducts))
+
+      res.status(200).json({
+        status: "success",
+        myproducts,
+        message: "Your items retrieved from the database and cached",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -90,9 +102,14 @@ const getUsersCreatedProducts = async (req, res) => {
 
 
 const createProduct = async (req, res) => {
-  const cacheKey = 'allProducts'
-  await redisClient.del(cacheKey)
+  
   try {
+    const userId = req.body.userId
+    const cacheKeyAllProducts = 'allProducts'
+    const cacheKeyUserProducts = `myproducts/${userId}`
+    await redisClient.del(cacheKeyAllProducts)
+    await redisClient.del(cacheKeyUserProducts)
+
     const newProduct = await Product.create(req.body);
     
     // const cachedData = await redisClient.get(cacheKey);
@@ -104,9 +121,6 @@ const createProduct = async (req, res) => {
     // }
 
     // products = [newProduct, ...products]
-  
-
-
     console.log(newProduct);
     res.status(201).json({
       status: "success",

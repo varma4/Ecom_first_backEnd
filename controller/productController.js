@@ -44,7 +44,6 @@ const getAll = async (req, res) => {
 
       const products = await Product.find();
 
-
       await redisClient.set(cacheKey, JSON.stringify(products)); 
 
       res.status(200).json({
@@ -71,6 +70,7 @@ const getUsersCreatedProducts = async (req, res) => {
   try {
     const userId = req.params.userId;
     console.log(userId);
+
     const myproducts = await Product.find({ userId });
 
     console.log("-------------------", myproducts);
@@ -87,9 +87,27 @@ const getUsersCreatedProducts = async (req, res) => {
   }
 };
 
+
 const createProduct = async (req, res) => {
   try {
     const newProduct = await Product.create(req.body);
+
+
+
+    const cacheKey = 'allProducts'
+    const cachedData = await redisClient.get(cacheKey);
+    let products = []
+
+    if(cachedData)
+    {
+      products = JSON.parse(cachedData)
+    }
+
+    products = [newProduct, ...products]
+
+    await redisClient.set(cacheKey, JSON.stringify(products))
+
+
     console.log(newProduct);
     res.status(201).json({
       status: "success",

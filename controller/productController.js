@@ -32,7 +32,7 @@ const getAll = async (req, res) => {
 
   try {
     // await redisClient.del(cacheKey)
-    const cachedData = await redisClient.get(cacheKey); // Use await to wait for the result
+    const cachedData = await redisClient.get(cacheKey); 
 
     if (cachedData) {
       const products = JSON.parse(cachedData);
@@ -92,19 +92,17 @@ const getUsersCreatedProducts = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     const newProduct = await Product.create(req.body);
-
-
-
     const cacheKey = 'allProducts'
-    const cachedData = await redisClient.get(cacheKey);
-    let products = []
+    // const cachedData = await redisClient.get(cacheKey);
+    // let products = []
 
-    if(cachedData)
-    {
-      products = JSON.parse(cachedData)
-    }
+    // if(cachedData)
+    // {
+    //   products = JSON.parse(cachedData)
+    // }
 
-    products = [newProduct, ...products]
+    // products = [newProduct, ...products]
+    await redisClient.del(cacheKey)
 
     await redisClient.set(cacheKey, JSON.stringify(products))
 

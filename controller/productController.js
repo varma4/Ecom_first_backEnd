@@ -31,6 +31,7 @@ const getAll = async (req, res) => {
   const cacheKey = 'allProducts';
 
   try {
+    await redisClient.del(cacheKey)
     const cachedData = await redisClient.get(cacheKey); // Use await to wait for the result
 
     if (cachedData) {

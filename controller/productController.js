@@ -27,65 +27,25 @@ const redisClient = require('../redis/redis')
 
   
 
-// const getAll = async (req, res) => {
-//   const cacheKey = 'allProducts';
-
-//   try {
-//     // await redisClient.del(cacheKey)
-//     const cachedData = await redisClient.get(cacheKey); 
-
-//     if (cachedData) {
-//       const products = JSON.parse(cachedData);
-//       res.status(200).json({
-//         status: 'success',
-//         data: products,
-//         message: 'Products received from cache',
-//       });
-//     } else {
-
-//       const products = await Product.find();
-
-//       await redisClient.set(cacheKey, JSON.stringify(products)); 
-
-//       res.status(200).json({
-//         status: 'success',
-//         data: products,
-//         message: 'Data fetched from the database and cached',
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({
-//       status: 'error',
-//       message: 'An error occurred while fetching products',
-//     });
-//   }
-// };
-
-
 const getAll = async (req, res) => {
   const cacheKey = 'allProducts';
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = 10; // Adjust based on your needs
-  const skip = (page - 1) * pageSize;
 
   try {
-    // Check the cache
-    const cachedData = await redisClient.get(cacheKey);
+    // await redisClient.del(cacheKey)
+    const cachedData = await redisClient.get(cacheKey); 
 
     if (cachedData) {
       const products = JSON.parse(cachedData);
-      // Assuming you're sending the entire dataset for simplicity in this example
       res.status(200).json({
         status: 'success',
         data: products,
         message: 'Products received from cache',
       });
     } else {
-      // Fetch a page of data from the database
-      const products = await Product.find().skip(skip).limit(pageSize);
 
-      // Cache the entire dataset for simplicity, consider caching pages or using a different cache strategy
-      await redisClient.set(cacheKey, JSON.stringify(products));
+      const products = await Product.find();
+
+      await redisClient.set(cacheKey, JSON.stringify(products)); 
 
       res.status(200).json({
         status: 'success',
@@ -94,7 +54,6 @@ const getAll = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Error fetching products:', error);
     res.status(500).json({
       status: 'error',
       message: 'An error occurred while fetching products',

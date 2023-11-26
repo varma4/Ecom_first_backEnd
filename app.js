@@ -27,6 +27,9 @@ app.use('/',signupRouter)
 app.use('/', productRouter)
 app.use('/', cartRouter)
 
+app.get('/jobs', (req, res) => {
+    return res.status(200).json('scheduledJobs');
+  });
 
 
 
